@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <title>あなたのＨＰタイトル</title>
+    <meta name="description" content="説明文">
+    <meta name="keywords" content="キーワード">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="index.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/addons/p5.sound.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <meta charset="utf-8" />
+  </head>
+  <body>
+  <script src="sketch.js"></script>
+  <script src="//toolness.github.io/p5.js-widget/p5-widget.js"></script>
+    <div id="outer">
+      <header>
+        <div id="logo"><h1>卒業研究用教材</h1></div>
+      </header>
+      <div id="content">
+        <main>
+          <div id="inner">
+            <h2>三角関数を用いて立方体を描画して回転させる</h2>
+            <h3>初めに</h3>
+            <p>この教材では、三角関数などの数学的な知識を用いて、立方体を表示・回転させるプログラムを作成します。</p>
+            <p>　</p>
+            <h3>目次</h3>
+            <p>作成の流れ</p>
+            <p>投影する関数を作る</p>
+            <p>立方体を回転させる</p>
+            <p>　</p>
+            <h3>作成の流れ</h3>
+            <p>実際にプログラムを作る前に、作成の流れを考えておきましょう。</p>
+            <p>　</p>
+            <p>まず、立方体を画面上に描画するにはどのようにすればよいか考えます。</p>
+            <p>三次元空間に存在する図形を、モニターという二次元空間に表示させるためには、</p>
+            <p>その図形が二次元に投影されたときに、どのように見えるのか計算する必要があります。</p>これを実現するために、ある三次元空間上の点(x3, y3, z3)に対応する、二次元に投影されたときの座標(x2, y2)に変換するプログラムを考えます。</p>
+            <p>　</p>
+            <p>この次に、立方体を回転させるにはどのようにすればよいか考えます。</p>
+            <p>回転させるには、それぞれの点を極座標表示によって考え、</p>
+            <p>偏角を大きくしたり小さくしたりすることを考えれば良さそうです。</p>
+            <p>偏角を変更するために、その点の偏角を取得する必要があり、</p>
+            <p>それには直交座標からの変換が必要になり、その方法について考えます。</p>
+            <p>　</p>
+            <p>このように、このプログラムの作成では、</p>
+            <p>①三次元から二次元への座標の変換</p>
+            <p>②偏角の操作で回転させる</p>
+            <p>という工程を踏むことになります。</p>
+            <p>　</p>
+
+            <h3>投影する関数を作る</h3>
+            <p>作成の流れで確認したように、まず、三次元から二次元への座標の変換を行う関数を考えます。</p>
+            <p>ある三次元空間の点を、二次元のスクリーンに映しだすために、</p>
+            <p>光線が一本だけ通れるような穴をスクリーンと点の間に用意します。</p>
+            <p>すると、この光線は、点と穴の二点を通る直線となり、スクリーンに一点を表示します。</p>
+            <p>そしてこの点の座標を求めることができれば、投影ができることになります。</p>
+            <p>例えば、穴の位置を原点、スクリーンをz=-1とすると、スクリーン上の点の座標はどのようにすれば求められるでしょうか。</p>
+            <!-- 折り畳み展開ポインタ -->
+            <div onclick="obj=document.getElementById('aopen1').style; obj.display=(obj.display=='none')?'block':'none';">
+            <a style="cursor:pointer;">▼ クリックで考え方を表示</a>
+            </div>
+            <!--// 折り畳み展開ポインタ -->
+
+            <!-- 折り畳まれ部分 -->
+            <div class="answer" id="aopen1" style="display:none;clear:both;">
+              <p>今、xz平面は下図のような状況になっていると思います。</p>
+              <div class="imgbox">
+                <img src="images/kyouzai1.png" width="1000">
+              </div>
+              <p>ここで三角形の相似を用いて考えると、スクリーン上でのx座標は -x/z であると分かります。</p>
+              <p>yz平面でも同様に考えると、スクリーン上での座標は、(-x/z, -y/z)と求められます。</p>
+            </div>
+            <!--// 折り畳まれ部分 -->
+            <p>　</p>
+            <p>では実際にこのプログラムを作ってみましょう！</p>
+            <p>今回の目的は立方体を描画することなので、</p>
+            <p>その前段階として、三次元空間のある線分を投影する関数を作ります。</p>
+            <p>その線分の両端の座標(x1, y1, z1),(x2, y2, z2)を引数として、</p>
+            <p>投影された線分を表示する関数と考えればよさそうです。</p>
+            <p>線分は、line関数を用いて描画しましょう。</p>
+            <p>また、今回は、後程表示させた立方体を回転させるため、</p>
+            <p>立方体が原点中心に描かれていると都合が良いです。</p>
+            <p>そのため、中心の点と投影面をそれぞれz方向に-100だけ平行移動させましょう。</p>
+            <script type="text/p5" data-autoplay data-preview-width="300">
+function setup() {
+    createCanvas(200, 200);
+}
+
+function draw() {
+    background(220);
+}
+
+function lineprojection(x1, y1, z1, x2, y2, z2){
+  sx1 = //始点のｘ座標の計算
+  sy1 = //始点のｙ座標の計算
+  sx2 = //終点のｘ座標の計算
+  sy2 = //終点のｙ座標の計算
+  line(sx1, sy1, sx2, sy2);
+}
+            </script>
+            <!-- 折り畳み展開ポインタ -->
+            <div onclick="obj=document.getElementById('open1').style; obj.display=(obj.display=='none')?'block':'none';">
+            <a style="cursor:pointer;">▼ クリックで解答例を表示</a>
+            </div>
+            <!--// 折り畳み展開ポインタ -->
+
+            <!-- 折り畳まれ部分 -->
+            <div class="answer" id="open1" style="display:none;clear:both;">
+            <pre>
+function setup() {
+    createCanvas(200, 200);
+}
+
+function draw() {
+    background(220);
+}
+
+function lineprojection(x1, y1, z1, x2, y2, z2){
+  sx1 = <div class="program">(x1/(-z1+100)) + 100</div>
+  sy1 = <div class="program">(y1/(-z1+100)) + 100</div>
+  sx2 = <div class="program">(x2/(-z2+100)) + 100</div>
+  sy2 = <div class="program">(y2/(-z2+100)) + 100</div>
+  line(sx1, sy1, sx2, sy2);
+}
+            </pre>
+            </div>
+            <!--// 折り畳まれ部分 -->
+            <p>　</p>
+            <p>これを用いて、実際に線分を描画して、関数の動作を確認してみましょう。</p>
+            <p>作った関数をdraw関数内で実行しましょう。</p>
+            <p>ここでは試しに、(0,50,0),(0,-50,0)の線分を描いてみましょう。</p>
+            <p>しかし、このままでは投影後の図形の座標が200前後の値で割られているため、</p>
+            <p>スケールが非常に小さくなってしまっています。</p>
+            <p>そこで、投影後の座標をそれぞれ100倍して、スケールを大きくしましょう。</p>
+            <script type="text/p5" data-autoplay data-preview-width="300">
+function setup() {
+    createCanvas(200, 200);
+}
+
+function draw() {
+    background(220);
+    //ここでlineprojection関数を使って線分を描画
+}
+
+function lineprojection(x1, y1, z1, x2, y2, z2){
+  //sx1,sy1,sx2,sy2をそれぞれ100倍する
+  sx1 = (x1/(-z1+100)) + 100
+  sy1 = (y1/(-z1+100)) + 100
+  sx2 = (x2/(-z2+100)) + 100
+  sy2 = (y2/(-z2+100)) + 100
+  line(sx1, sy1, sx2, sy2);
+}
+            </script>
+            <!-- 折り畳み展開ポインタ -->
+            <div onclick="obj=document.getElementById('open2').style; obj.display=(obj.display=='none')?'block':'none';">
+            <a style="cursor:pointer;">▼ クリックで解答例を表示</a>
+            </div>
+            <!--// 折り畳み展開ポインタ -->
+
+            <!-- 折り畳まれ部分 -->
+            <div class="answer" id="open2" style="display:none;clear:both;">
+            <pre>
+function setup() {
+    createCanvas(200, 200);
+}
+
+function draw() {
+    background(220);
+    <div class="program">lineprojection(0, 50, 0, 0, -50, 0)</div>
+}
+
+function lineprojection(x1, y1, z1, x2, y2, z2){
+  sx1 = (x1/(-z1+100)) <div class="program">* 100</div> + 100
+  sy1 = (y1/(-z1+100)) <div class="program">* 100</div> + 100
+  sx2 = (x2/(-z2+100)) <div class="program">* 100</div> + 100
+  sy2 = (y2/(-z2+100)) <div class="program">* 100</div> + 100
+  line(sx1, sy1, sx2, sy2);
+}
+            </pre>
+            </div>
+            <!--// 折り畳まれ部分 -->
+            <p>　</p>
+            <p>表示されました！ではこの関数を繰り返し用いて、立方体を描画してみましょう。</p>
+            <p>原点を中心とした、一辺の長さが50の立方体を描画してみましょう。</p>
+            <p>方法はいくつか存在しますが、一例を解答例に載せておきます。</p>
+            <script type="text/p5" data-autoplay data-preview-width="300">
+function setup() {
+    createCanvas(200, 200);
+}
+
+function draw() {
+    background(220);
+    //ここでlineprojection関数を繰り返し使って立方体を描画
+}
+
+function lineprojection(x1, y1, z1, x2, y2, z2){
+  sx1 = (x1/(-z1+100)) * 100 + 100
+  sy1 = (y1/(-z1+100)) * 100 + 100
+  sx2 = (x2/(-z2+100)) * 100 + 100
+  sy2 = (y2/(-z2+100)) * 100 + 100
+  line(sx1, sy1, sx2, sy2);
+}
+            </script>
+            <!-- 折り畳み展開ポインタ -->
+            <div onclick="obj=document.getElementById('open3').style; obj.display=(obj.display=='none')?'block':'none';">
+            <a style="cursor:pointer;">▼ クリックで解答例を表示</a>
+            </div>
+            <!--// 折り畳み展開ポインタ -->
+
+            <!-- 折り畳まれ部分 -->
+            <div class="answer" id="open3" style="display:none;clear:both;">
+            <pre>
+function setup() {
+    createCanvas(200, 200);
+}
+
+function draw() {
+    background(220);
+
+    //最前面描画
+    <div class="program">lineprojection(-25, -25, -25,  25, -25, -25)</div>
+    <div class="program">lineprojection( 25,  25, -25,  25, -25, -25)</div>
+    <div class="program">lineprojection( 25,  25, -25, -25,  25, -25)</div>
+    <div class="program">lineprojection(-25, -25, -25, -25,  25, -25)</div>
+    //最背面描画
+    <div class="program">lineprojection(-25, -25,  25,  25, -25,  25)</div>
+    <div class="program">lineprojection( 25,  25,  25,  25, -25,  25)</div>
+    <div class="program">lineprojection( 25,  25,  25, -25,  25,  25)</div>
+    <div class="program">lineprojection(-25, -25,  25, -25,  25,  25)</div>
+    //それらをつなぐ辺描画
+    <div class="program">lineprojection(-25, -25, -25, -25, -25,  25)</div>
+    <div class="program">lineprojection( 25, -25, -25,  25, -25,  25)</div>
+    <div class="program">lineprojection(-25,  25, -25, -25,  25,  25)</div>
+    <div class="program">lineprojection( 25,  25, -25,  25,  25,  25)</div>
+    
+}
+
+function lineprojection(x1, y1, z1, x2, y2, z2){
+  sx1 = (x1/(-z1+100)) * 100 + 100
+  sy1 = (y1/(-z1+100)) * 100 + 100
+  sx2 = (x2/(-z2+100)) * 100 + 100
+  sy2 = (y2/(-z2+100)) * 100 + 100
+  line(sx1, sy1, sx2, sy2);
+}
+            </pre>
+            </div>
+            <!--// 折り畳まれ部分 -->
+            <p>　</p>
+            <h3>立方体を回転させる</h3>
+            <p>ではここからは、先ほど表示した立方体を回転させます。</p>
+            <p>まず、xz平面で、ある点(x, z)を、原点を中心にα回転させることを考えてみましょう。</p>
+            <p>その点と原点を結んだ直線とx軸とのなす角をθ、原点からの距離をrとすると、</p>
+            <p>求める座標は、(rcos(θ+α), rsin(θ+α))となることが分かると思います。</p>
+            <p>つまり、座標(rcos(θ+α), rsin(θ+α))を求めることができれば、</p>
+            <p>ある点を原点を中心にα回転した時の座標を求めることができるということになります。</p>
+            <p>では、この値はどのようにすれば求めることができるでしょうか。</p>
+            <!-- 折り畳み展開ポインタ -->
+            <div onclick="obj=document.getElementById('aopen2').style; obj.display=(obj.display=='none')?'block':'none';">
+              <a style="cursor:pointer;">▼ クリックで考え方を表示</a>
+              </div>
+              <!--// 折り畳み展開ポインタ -->
+  
+              <!-- 折り畳まれ部分 -->
+              <div class="answer" id="aopen2" style="display:none;clear:both;">
+                <p>方法の一つ目として考えられることは、θを直接求め、</p>
+                <p>それを三角関数に代入することで求める方法です。</p>
+                <p>点の座標(x, z)は、θを用いて(rcosθ, rsinθ)として表すことができます。</p>
+                <p>つまり、z/x=tanθとなります。これを満たすθを計算すれば良いことが分かります。</p>
+                <p>これは、タンジェントの逆関数を用いれば求めることができます。</p>
+                <p>　</p>
+                <p>方法の二つ目として、(rcos(θ+α), rsin(θ+α))を三角関数の加法定理を用いて計算する方法があります。</p>
+                <p>rcosθ=x, rsinθ=z が分かっているので、これによって、</p>
+                <p>rcos(θ+α) = xcosα-zsinα</p>
+                <p>rsin(θ+α) = zcosα+xsinα</p>
+                <p>と計算することができます。</p>
+                <p>　</p>
+                <p>一つ目の方法は、直交座標を極座標に変換する普遍的な方法として有用ですが、</p>
+                <p>二つ目の方法では、直接θを計算することなく、点の座標(x, z)をそのまま用いることで計算することができます。</p>
+                <p>こちらの方が記述が簡単なので、今回はこちらの方法によって記述していこうと思います。</p>
+              </div>
+            <!--// 折り畳まれ部分 -->
+            <p>　</p>
+            <p>プログラムを作っていきましょう。ここでも先程投影したのと同様に、関数を作って動かします。</p>
+            <p>今回は、マウスの動きによって回転させるプログラムにしたいので、</p>
+            <p>マウスの位置を角度情報に変換する必要があります。</p>
+            <p>これは単純に、マウスのx座標0～200を、x方向の回転角-π~πなどに対応させれば良いので、</p>
+            <p>下のプログラムのような変換が考えられるでしょう。</p>
+            <script type="text/p5" data-autoplay data-preview-width="300">
+function setup() {
+    createCanvas(200, 200);
+}
+
+function draw() {
+    background(220);
+    thetaX = ((mouseX-100)/100) * PI //x方向の回転角
+    thetaY = ((mouseY-100)/100) * PI //y方向の回転角
+    text(thetaX,100,50) //表示
+    text(thetaY,100,100) //表示
+}
+</script>
+            <p>画面上でマウスを横に動かしてみると、値が-π~πまで変化していることが分かると思います。</p>
+            <p>これを回転角として、図形を回転させましょう。</p>
+            <p>まず初めに、図形をxz平面内で回転させ、そこからyz平面での回転をさせるという方針で考えましょう。</p>
+            <p>xz平面内での回転後の座標は、先述の議論から、(xcosα-zsinα, zcosα+xsinα)で表されることが分かるので、これを関数に落とし込んでみましょう。</p>
+            <script type="text/p5" data-autoplay data-preview-width="300">
+function setup() {
+    createCanvas(200, 200);
+}
+
+function draw() {
+    background(220);
+    //最前面描画
+    lineprojection(-25, -25, -25,  25, -25, -25)
+    lineprojection( 25,  25, -25,  25, -25, -25)
+    lineprojection( 25,  25, -25, -25,  25, -25)
+    lineprojection(-25, -25, -25, -25,  25, -25)
+    //最背面描画
+    lineprojection(-25, -25,  25,  25, -25,  25)
+    lineprojection( 25,  25,  25,  25, -25,  25)
+    lineprojection( 25,  25,  25, -25,  25,  25)
+    lineprojection(-25, -25,  25, -25,  25,  25)
+    //それらをつなぐ辺描画
+    lineprojection(-25, -25, -25, -25, -25,  25)
+    lineprojection( 25, -25, -25,  25, -25,  25)
+    lineprojection(-25,  25, -25, -25,  25,  25)
+    lineprojection( 25,  25, -25,  25,  25,  25)
+}
+
+function lineprojection(x1, y1, z1, x2, y2, z2){
+  //回転角計算
+  thetaX = ((mouseX-100)/100) * PI //x方向の回転角
+  thetaY = ((mouseY-100)/100) * PI //y方向の回転角
+
+  //回転後の座標計算
+  const [rx1, ry1, rz1] = pointrotate(x1, y1, z1, thetaX, thetaY);
+  const [rx2, ry2, rz2] = pointrotate(x2, y2, z2, thetaX, thetaY);
+
+  sx1 = (rx1/(-rz1+100)) * 100 + 100
+  sy1 = (ry1/(-rz1+100)) * 100 + 100
+  sx2 = (rx2/(-rz2+100)) * 100 + 100
+  sy2 = (ry2/(-rz2+100)) * 100 + 100
+  line(sx1, sy1, sx2, sy2);
+}
+
+function pointrotate(x ,y, z, thetaX, thetaY){
+  ax = 0//回転後のｘ座標を入力
+  ay = y
+  az = 0//回転後のｚ座標を入力
+  
+  return [ax, ay, az]
+}
+            </script>
+            <!-- 折り畳み展開ポインタ -->
+            <div onclick="obj=document.getElementById('open4').style; obj.display=(obj.display=='none')?'block':'none';">
+            <a style="cursor:pointer;">▼ クリックで解答例を表示</a>
+            </div>
+            <!--// 折り畳み展開ポインタ -->
+
+            <!-- 折り畳まれ部分 -->
+            <div class="answer" id="open4" style="display:none;clear:both;">
+            <pre>
+function setup() {
+    createCanvas(200, 200);
+}
+
+function draw() {
+    background(220);
+    //最前面描画
+    lineprojection(-25, -25, -25,  25, -25, -25)
+    lineprojection( 25,  25, -25,  25, -25, -25)
+    lineprojection( 25,  25, -25, -25,  25, -25)
+    lineprojection(-25, -25, -25, -25,  25, -25)
+    //最背面描画
+    lineprojection(-25, -25,  25,  25, -25,  25)
+    lineprojection( 25,  25,  25,  25, -25,  25)
+    lineprojection( 25,  25,  25, -25,  25,  25)
+    lineprojection(-25, -25,  25, -25,  25,  25)
+    //それらをつなぐ辺描画
+    lineprojection(-25, -25, -25, -25, -25,  25)
+    lineprojection( 25, -25, -25,  25, -25,  25)
+    lineprojection(-25,  25, -25, -25,  25,  25)
+    lineprojection( 25,  25, -25,  25,  25,  25)
+}
+
+function lineprojection(x1, y1, z1, x2, y2, z2){
+  //回転角計算
+  thetaX = ((mouseX-100)/100) * PI //x方向の回転角
+  thetaY = ((mouseY-100)/100) * PI //y方向の回転角
+
+  //回転後の座標計算
+  const [rx1, ry1, rz1] = pointrotate(x1, y1, z1, thetaX, thetaY);
+  const [rx2, ry2, rz2] = pointrotate(x2, y2, z2, thetaX, thetaY);
+
+  sx1 = (rx1/(-rz1+100)) * 100 + 100
+  sy1 = (ry1/(-rz1+100)) * 100 + 100
+  sx2 = (rx2/(-rz2+100)) * 100 + 100
+  sy2 = (ry2/(-rz2+100)) * 100 + 100
+  line(sx1, sy1, sx2, sy2);
+}
+
+function pointrotate(x ,y, z, thetaX, thetaY){
+  ax = <div class="program">x * cos(thetaX) - z * sin(thetaX)</div>
+  ay = y
+  az = <div class="program">z * cos(thetaX) + x * sin(thetaX)</div>
+  
+  return [ax, ay, az]
+}
+            </pre>
+            </div>
+            <!--// 折り畳まれ部分 -->
+            <p>　</p>
+            <p>回転することができました！では、縦方向の回転も実装しましょう。</p>
+            <p>横方向に回転させた後に、縦方向に回転させると考えて、実装してみましょう。</p>
+            <script type="text/p5" data-autoplay data-preview-width="300">
+function setup() {
+    createCanvas(200, 200);
+}
+
+function draw() {
+    background(220);
+    //最前面描画
+    lineprojection(-25, -25, -25,  25, -25, -25)
+    lineprojection( 25,  25, -25,  25, -25, -25)
+    lineprojection( 25,  25, -25, -25,  25, -25)
+    lineprojection(-25, -25, -25, -25,  25, -25)
+    //最背面描画
+    lineprojection(-25, -25,  25,  25, -25,  25)
+    lineprojection( 25,  25,  25,  25, -25,  25)
+    lineprojection( 25,  25,  25, -25,  25,  25)
+    lineprojection(-25, -25,  25, -25,  25,  25)
+    //それらをつなぐ辺描画
+    lineprojection(-25, -25, -25, -25, -25,  25)
+    lineprojection( 25, -25, -25,  25, -25,  25)
+    lineprojection(-25,  25, -25, -25,  25,  25)
+    lineprojection( 25,  25, -25,  25,  25,  25)
+}
+
+function lineprojection(x1, y1, z1, x2, y2, z2){
+  //回転角計算
+  thetaX = ((mouseX-100)/100) * PI //x方向の回転角
+  thetaY = ((mouseY-100)/100) * PI //y方向の回転角
+
+  //回転後の座標計算
+  const [rx1, ry1, rz1] = pointrotate(x1, y1, z1, thetaX, thetaY);
+  const [rx2, ry2, rz2] = pointrotate(x2, y2, z2, thetaX, thetaY);
+
+  sx1 = (rx1/(-rz1+100)) * 100 + 100
+  sy1 = (ry1/(-rz1+100)) * 100 + 100
+  sx2 = (rx2/(-rz2+100)) * 100 + 100
+  sy2 = (ry2/(-rz2+100)) * 100 + 100
+  line(sx1, sy1, sx2, sy2);
+}
+
+function pointrotate(x ,y, z, thetaX, thetaY){
+  ax = x * cos(thetaX) - z * sin(thetaX)
+  ay = y
+  az = z * cos(thetaX) + x * sin(thetaX)
+
+  bx = ax
+  by = 0//y方向に回転した後のy座標を入力
+  bz = 0//y方向に回転した後のz座標を入力
+  
+  return [bx, by, bz]
+}
+            </script>
+            <!-- 折り畳み展開ポインタ -->
+            <div onclick="obj=document.getElementById('open5').style; obj.display=(obj.display=='none')?'block':'none';">
+            <a style="cursor:pointer;">▼ クリックで解答例を表示</a>
+            </div>
+            <!--// 折り畳み展開ポインタ -->
+
+            <!-- 折り畳まれ部分 -->
+            <div class="answer" id="open5" style="display:none;clear:both;">
+            <pre>
+function setup() {
+    createCanvas(200, 200);
+}
+
+function draw() {
+    background(220);
+    //最前面描画
+    lineprojection(-25, -25, -25,  25, -25, -25)
+    lineprojection( 25,  25, -25,  25, -25, -25)
+    lineprojection( 25,  25, -25, -25,  25, -25)
+    lineprojection(-25, -25, -25, -25,  25, -25)
+    //最背面描画
+    lineprojection(-25, -25,  25,  25, -25,  25)
+    lineprojection( 25,  25,  25,  25, -25,  25)
+    lineprojection( 25,  25,  25, -25,  25,  25)
+    lineprojection(-25, -25,  25, -25,  25,  25)
+    //それらをつなぐ辺描画
+    lineprojection(-25, -25, -25, -25, -25,  25)
+    lineprojection( 25, -25, -25,  25, -25,  25)
+    lineprojection(-25,  25, -25, -25,  25,  25)
+    lineprojection( 25,  25, -25,  25,  25,  25)
+}
+
+function lineprojection(x1, y1, z1, x2, y2, z2){
+  //回転角計算
+  thetaX = ((mouseX-100)/100) * PI //x方向の回転角
+  thetaY = ((mouseY-100)/100) * PI //y方向の回転角
+
+  //回転後の座標計算
+  const [rx1, ry1, rz1] = pointrotate(x1, y1, z1, thetaX, thetaY);
+  const [rx2, ry2, rz2] = pointrotate(x2, y2, z2, thetaX, thetaY);
+
+  sx1 = (rx1/(-rz1+100)) * 100 + 100
+  sy1 = (ry1/(-rz1+100)) * 100 + 100
+  sx2 = (rx2/(-rz2+100)) * 100 + 100
+  sy2 = (ry2/(-rz2+100)) * 100 + 100
+  line(sx1, sy1, sx2, sy2);
+}
+
+function pointrotate(x ,y, z, thetaX, thetaY){
+  ax = x * cos(thetaX) - z * sin(thetaX)
+  ay = y
+  az = z * cos(thetaX) + x * sin(thetaX)
+
+  bx = ax
+  by = <div class="program">ay * cos(thetaY) - az * sin(thetaY)</div>
+  bz = <div class="program">az * cos(thetaY) + ay * sin(thetaY)</div>
+
+  return [bx, by, bz]
+}
+            </pre>
+            </div>
+            <!--// 折り畳まれ部分 -->
+            <p>　</p>
+            <p>これで立方体を描画するプログラムは完成です！おつかれさまでした！</p>
+            <p>　</p>
+            <h3>おまけ</h3>
+            <p>今までの知識を用いると、以下のような一人称視点でフィールドを歩いているような表示ができます。</p>
+            <p>wasdで移動</p>
+            <script type="text/p5" data-autoplay data-preview-width="400">
+function setup() {
+  createCanvas(700, 600);
+  px = 0;
+  py = 0;
+  pz = 0;
+}
+
+function draw() {
+  background(220);
+  
+  thetaX = ((mouseX-width /2)/width /2) * PI * 2
+  thetaY = ((mouseY-height/2)/height/2) * PI
+  
+  if(keyIsPressed){
+    if(key == 'w'){
+      pz = pz - 3*cos(thetaX)
+      px = px - 3*sin(thetaX)
+    }
+    if(key == 's'){
+      pz = pz + 3*cos(thetaX)
+      px = px + 3*sin(thetaX)
+    }
+    if(key == 'a'){
+      pz = pz - 3*sin(thetaX)
+      px = px + 3*cos(thetaX)
+    }
+    if(key == 'd'){
+      pz = pz + 3*sin(thetaX)
+      px = px - 3*cos(thetaX)
+    }
+  }
+  //タイル描画
+  for(let a=-5; a<6; a++){
+    for(let b=-5; b<6; b++){
+      lineprojection(-50+(a*100),  50, -50+(b*100), -50+(a*100),  50,  50+(b*100))
+      lineprojection( 50+(a*100),  50,  50+(b*100), -50+(a*100),  50,  50+(b*100))
+      lineprojection( 50+(a*100),  50,  50+(b*100),  50+(a*100),  50, -50+(b*100))
+      lineprojection(-50+(a*100),  50, -50+(b*100),  50+(a*100),  50, -50+(b*100))
+    }
+  }
+  
+}
+
+function lineprojection(x1, y1, z1, x2, y2, z2){
+
+  let [rx1, ry1, rz1] = pointrotate(x1+px, y1+py, z1+pz, thetaX, thetaY);
+  let [rx2, ry2, rz2] = pointrotate(x2+px, y2+py, z2+pz, thetaX, thetaY);
+  
+  if(rz1<=0 && rz2<=0){
+    return
+  }else if(rz1<=0){
+    rx1 = (rx1*rz2 + rx2*(-1)*rz1) / ((-1)*rz1*rz2)
+    ry1 = (ry1*rz2 + ry2*(-1)*rz1) / ((-1)*rz1*rz2)
+    rz1 = 1
+  }else if(rz2<=0){
+    rx2 = (rx1*(-1)*rz2 + rx2*rz1) / ((-1)*rz1*rz2)
+    ry2 = (ry1*(-1)*rz2 + ry2*rz1) / ((-1)*rz1*rz2)
+    rz2 = 1
+  }
+  
+  mag_rate = 300
+  
+  sx1 = (rx1/rz1) * mag_rate + (width/2)
+  sy1 = (ry1/rz1) * mag_rate + (height/2)
+  sx2 = (rx2/rz2) * mag_rate + (width/2)
+  sy2 = (ry2/rz2) * mag_rate + (height/2)
+  line(sx1, sy1, sx2, sy2);
+}
+
+function pointrotate(x ,y, z, thetaX, thetaY){
+  bx = x * cos(thetaX) - z * sin(thetaX)
+  by = y
+  bz = z * cos(thetaX) + x * sin(thetaX)
+  
+  ax = bx
+  ay = by * cos(thetaY) - bz * sin(thetaY)
+  az = bz * cos(thetaY) + by * sin(thetaY)
+  
+  return [ax, ay, az]
+  
+}
+            </script>
+            <p>　</p>
+            <h3>参考</h3>
+            <p>p5.js widget埋め込み</p>
+            <p>https://github.com/toolness/p5.js-widget</p>
+          </div>
+        </main>
+        <!--
+        <aside>
+          <div id="aside-inner">
+            <nav id="left">
+              <div class="title">menu</div>
+              <div class="side">
+                <ul>
+                  <li>記事ページへのリンク</li>
+                  <li>記事ページへのリンク</li>
+                </ul>
+              </div>
+            </nav>
+            <nav id="right">
+              <div class="title">menu</div>
+              <div class="side">
+                <ul>
+                  <li>記事ページへのリンク</li>
+                  <li>記事ページへのリンク</li>
+                </ul>
+              </div>
+            </nav>
+          </div>
+        </aside>
+        -->
+      </div>
+      <footer></footer>
+    </div>
+  </body>
+</html>
