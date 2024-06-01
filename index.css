@@ -1,0 +1,175 @@
+@charset "UTF-8";
+body {
+	margin: 0;
+	padding: 0;
+	font-family:"Yu Gothic", "游ゴシック", YuGothic, "游ゴシック体";
+}
+#outer {
+	padding: 0;
+	border-top: 2px solid #7a9f37;
+	line-height: 1.6;
+}
+header {
+	padding: 0;
+	border-bottom: 1px #ccc solid;
+}
+#content {
+	background-color: #f8f9fa;
+}
+main {
+	display: block;
+	background-color: #fff;
+	margin: 0 auto;
+	width: 1200px;
+	padding: 0;
+}
+#inner {
+	padding: 16px 30px;
+}
+.program{
+	background-color: rgb(123, 229, 255);
+	display: inline-block; 
+	display: inline;
+}
+.answer{
+	font-size: 17px
+}
+aside {
+	margin: 0 auto;
+	width: 1200px;
+	padding: 0;
+	overflow: auto;
+	background-color: #fff;
+}
+#aside-inner {
+	padding: 0 30px;
+}
+#left {
+	float: left;
+	width: 48%;
+}
+#right {
+	width: 48%;
+	float: right;
+	box-sizing: border-box;
+}
+ul {
+	margin: 1em 0 1em 1.5em;
+	padding: 0;
+}
+ol {
+	margin: 0 0 0 2em;
+	padding: 0;
+}
+li {
+	list-style: none;
+}
+ol li {
+	list-style-type: decimal;
+}
+p {
+	margin: 1em 0;
+	word-wrap: break-word;
+}
+img {
+	max-width: 100%;
+	height: auto;
+}
+.imgbox{
+	text-align:center;
+}
+hr {
+	border-width: 1px 0 0 0;
+	border-style: solid;
+	border-color: #ccc;
+	height: 1px;
+}
+a {
+	color: #03c;
+	text-decoration: underline;
+}
+a:hover {
+	color: #224495;
+	text-decoration: none;
+}
+#logo {
+	font-size: 16px;
+	padding: 22px 0 22px 0;
+	margin: 0 auto;
+	width: 1100px;
+}
+#logo a {
+	font-weight: bold;
+	color: rgba(0, 0, 0, 1);
+	text-decoration: none;
+}
+#logo a:hover {
+	text-decoration: underline;
+}
+h1 {
+	font-size: 26px;
+	padding: 0;
+	margin: 0;
+}
+h2 {
+	margin: 0;
+	font-size: 24px;
+	padding: 0;
+	border-bottom: 1px solid #ccc;
+}
+h3 {
+	background: linear-gradient(transparent 60%, #c8f1ff 60%)
+}
+.title {
+	font-size: 18px;
+	color: #333;
+	padding: 5px 0;
+	font-weight: bold;
+}
+.side {
+	padding: 0 0 10px 0;
+}
+.side ul {
+	margin: 0.3em 0 1em 1em;
+}
+.side li {
+	line-height: 1.6;
+}
+.side li a {
+	color: #1155cc;
+	text-decoration: none;
+}
+.side li a:hover {
+	color: #224495;
+	text-decoration: underline;
+}
+.title a {
+	text-decoration: none;
+	color: #363636;
+}
+.title a:hover {
+	text-decoration: underline;
+	color: #0036c6;
+}
+.title:after {
+	content: ">";
+	color: #ccc;
+	font-weight: bold;
+	padding-left: 9px;
+}
+footer {
+	padding-top: 20px;
+	height: 150px;
+	clear: left;
+	text-align: center;
+	position: relative;
+	border-top: 1px #e3e3e3 solid;
+}
+footer a {
+	color: #444;
+	text-decoration: none;
+}
+footer a:hover {
+	color: #036;
+	text-decoration: underline;
+}
